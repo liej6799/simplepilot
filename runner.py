@@ -36,6 +36,29 @@ def run_loop(m, tf8_input=False):
     for r in ret:
       write(r)
 
+def run_once(m, tf8_input=False):
+  ishapes = [[1]+ii.shape[1:] for ii in m.get_inputs()]
+  keys = [x.name for x in m.get_inputs()]
+  print("ready to run onnx model", keys, ishapes, file=sys.stderr)
+  while 1:
+    inputs = []
+    for k, shp in zip(keys, ishapes):
+      ts = np.product(shp)
+      #print("reshaping %s with offset %d" % (str(shp), offset), file=sys.stderr)
+      inputs = get_random_input_tensors()
+      #inputs.append(read(ts, (k=='input_img' and tf8_input)).reshape(shp))
+    ret = m.run(None, dict(zip(keys, inputs)))
+    print(ret, file=sys.stderr)
+    for r in ret:
+      write(r)
+
+def get_random_input_tensors():
+  np_inputs = {
+    "input_imgs": np.random.randn(*(1, 12, 128, 256))*256
+    #"initial_state": np.zeros((1, 768))
+  }
+  np_inputs = {k:v.astype(np.float32) for k,v in np_inputs.items()}
+  return np_inputs
 
 options = ort.SessionOptions()
 options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
@@ -47,7 +70,7 @@ provider = 'CPUExecutionProvider'
 
 # onnx_model is an in-memory ModelProto
 ort_session = ort.InferenceSession("models/dmonitoring_model.onnx", options, providers=[provider])
-run_loop(ort_session)
-
+#run_loop(ort_session)
+run_once(ort_session)
 print(ort_session)
 
