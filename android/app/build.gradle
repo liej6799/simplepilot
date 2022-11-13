@@ -5,7 +5,19 @@ plugins {
 android {
     namespace 'com.simplepilot.mobile'
     compileSdk 32
+    ndkVersion "21.1.6352462"
 
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['../assets']
+            jniLibs.srcDirs = ['libs']
+            // exclude onnx models from apk.
+            sourceSets.main.res.filter.exclude '**/supercombo.onnx'
+        }
+    }
     packagingOptions {
         // Preventing from license violations (more or less):
         pickFirst 'META-INF/LICENSE.txt'
@@ -29,6 +41,14 @@ android {
         versionName "1.0"
         multiDexEnabled true
 
+
+        externalNativeBuild {
+            cmake {
+                arguments "-fuse-ld=lld" // This is to fix lld problem (armv8)
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -44,11 +64,20 @@ android {
         targetCompatibility "8.0"
         coreLibraryDesugaringEnabled true
     }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
 }
 
 ext {
     nd4j_version ='1.0.0-M1.1'
+    camerax_version = '1.1.0-beta02'
 }
+
 
 
 dependencies {
@@ -64,4 +93,14 @@ dependencies {
     implementation "org.nd4j:nd4j-native:$nd4j_version"
     implementation "org.nd4j:nd4j-native:$nd4j_version:android-arm64"
 
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation "androidx.camera:camera-view:$camerax_version"
+    implementation "androidx.camera:camera-video:$camerax_version"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "org.capnproto:runtime:0.1.13"
 }
+configurations { natives }
+
