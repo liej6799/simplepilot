@@ -4,7 +4,7 @@ import numpy as np
 import util
 
 app = Flask(__name__)
-app.url = '../sample/video/road.hevc'
+app.url = 'road.hevc'
 
 def gen_frames():  # generate frame by frame from camera
 
@@ -33,9 +33,9 @@ def gen_frames():  # generate frame by frame from camera
     cap = cv2.VideoCapture(app.url)
     success, frame = cap.read()
     if not success:
-        cap = cv2.VideoCapture('../sample/video/road.hevc')
+        cap = cv2.VideoCapture('road.hevc')
         
-    model, run_model = util.load_inference_model('../model/supercombo.onnx')
+    model, run_model = util.load_inference_model('supercombo.onnx')
   
 
     while(cap.isOpened()):
