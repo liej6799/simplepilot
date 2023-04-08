@@ -47,11 +47,12 @@ eon_intrinsics = np.array([
 def transform_frames(frames):
     imgs_med_model = np.zeros((len(frames), 384, 512), dtype=np.uint8)
     for i, img in enumerate(frames):
-        imgs_med_model[i] = transform_img(img, 
-                                          from_intr=eon_intrinsics,
-                                          to_intr=medmodel_intrinsics, 
-                                          yuv=True,
-                                          output_size=(512, 256))
+        if img.any():
+          imgs_med_model[i] = transform_img(img, 
+                                            from_intr=eon_intrinsics,
+                                            to_intr=medmodel_intrinsics, 
+                                            yuv=True,
+                                            output_size=(512, 256))
 
     reshaped = reshape_yuv(imgs_med_model)
 
