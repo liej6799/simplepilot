@@ -10,9 +10,24 @@
     body {
         font-family: 'Lucida Console', monospace;
     }
+    form {
+        display: inline;
+    }
 </style>
 <body>
     <h3>simplepilot web interface</h3>
+    <div class="btn">
+        <form action="/" method="get">
+            <input type="text" required name="url" placeholder="stream url" value="">
+            <button type="submit">Start</button>
+        </form>
+        <form action="/" method="get">
+            <input type="hidden" name="url" value="">
+            <button type="submit">Demo</button>
+        </form>
+    </div>
+    <br/> 
+    <br/>
     <img src="{{ url_for('video_feed') }}" width="100%">
 </body>
 </html>

@@ -1,9 +1,10 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
 import util
 
 app = Flask(__name__)
+app.url = '../sample/video/road.hevc'
 
 def gen_frames():  # generate frame by frame from camera
 
@@ -29,7 +30,11 @@ def gen_frames():  # generate frame by frame from camera
     rpy_calib_pred = np.array([0.00018335809, 0.034165092, -0.014245722]) / 2 
     calibration = util.Calibration(rpy_calib_pred, plot_img_width=util.plot_img_width, plot_img_height=util.plot_img_height)
 
-    cap = cv2.VideoCapture('../sample/video/road.hevc')
+    cap = cv2.VideoCapture(app.url)
+    success, frame = cap.read()
+    if not success:
+        cap = cv2.VideoCapture('../sample/video/road.hevc')
+        
     model, run_model = util.load_inference_model('../model/supercombo.onnx')
   
 
@@ -79,21 +84,13 @@ def gen_frames():  # generate frame by frame from camera
 
         else:
             break
-    while True:
-        # Capture frame-by-frame
-        success, frame = cap.read()  # read the camera frame
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
 
-
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     """Video streaming home page."""
+    if request.args.get("url") is not None:
+        app.url = request.args.get("url")
+
     return render_template('index.html')
 
 @app.route('/video_feed')
