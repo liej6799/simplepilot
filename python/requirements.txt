@@ -1,6 +1,5 @@
-opencv-python-headless==4.7.0.72
+opencv-python==4.7.0.72
 onnx==1.13.1
 onnxruntime==1.14.1
 flask==2.2.3
-gunicorn==20.1.0 
 gevent
